@@ -198,8 +198,11 @@ elif (line == "SYS_CONFIG 0"):
 		elif (device['module'] == 'US'):
 			cmd("US_REG " + str(device['pin_transmit']) + " " + str(device['pin_echo']))
 
-		elif (device['module'] == 'PWM'):				
-			cmd("PWM_REG " + str(device['pin']))
+		elif (device['module'] == 'PWM'):		
+			inverted = device['inverted'] if ('inverted' in device) else False
+			inverted = ' I' if inverted else ''
+			
+			cmd("PWM_REG " + str(device['pin']) + inverted)
 
 	cmd("SYS_CONFIG 99 1")
 
