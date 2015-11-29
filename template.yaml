@@ -1,0 +1,122 @@
+serial:
+    port: "/dev/ttyUSB0"
+    baudrate: 19200
+    timeout: 30
+    reset: true
+
+mqtt:
+    prefix: "roomXYZ/"
+    server: "broker.lan"
+    port: 1883
+    timeout: 60
+    client_id: "roomXYZ_arduino"
+    default_qos: 2
+
+    user: "roomXYZ_arduino"
+    password: "someSTRONGpassword"
+
+devices: 
+
+    DO:            
+        - mqtt_path: 'socket'
+          pin: 12
+          
+          #optional
+          inverted: true
+          security_interval: 5000
+          retain: true
+            
+        - mqtt_path: 'led'
+          pin: 13
+          
+          #optional
+          retain: true
+
+    DI:
+        - mqtt_path: 'window1'
+          pin: 5
+          
+          #optional
+          pullup: true
+          retain: true
+            
+        - mqtt_path: 'pir'
+          pin: 8
+          retain: true
+
+    AI:
+        - mqtt_path: 'light'
+          pin: 60
+          
+          #optional
+          enabled: true
+          threshold: 20
+          retain: true
+
+    TEMP:
+        - mqtt_path_temperature: 'temperature-spare'
+          mqtt_path_humidity: 'humidity'
+          pin: 7
+          submodule: 'DHT'
+          
+          #optional
+          retain: true
+
+        - mqtt_path: 'temperature'
+          pin: 10
+          submodule: 'DALLAS'
+          address: '28F5372C76A40067'
+          
+          #optional
+          retain: true
+
+        - mqtt_path: 'temperature-outside'
+          pin: 2
+          submodule: 'AURIOL433'
+          
+          #optional
+          retain: true
+          
+    US:
+        - mqtt_path: 'ultrasonic'
+          pin: 4
+          pin_echo: 2
+          pin_transmit: 4
+      
+    IR:
+        - mqtt_path: 'ir'
+          pin: 11
+
+    PWM:
+        - mqtt_path: 'r'
+          pin: 5
+          
+          #optional
+          retain: true
+          
+        - mqtt_path: 'g'
+          pin: 6
+          
+          #optional
+          retain: true
+          
+        - mqtt_path: 'b'
+          pin: 9
+          
+          #optional
+          retain: true
+          
+        - mqtt_path: 'weird-motor'
+          pin: 11
+          
+          #optional
+          inverted: true
+          security_interval: 5000
+          retain: true
+    433:
+        - mqtt_path: "rc"
+          # so far transmit only
+          pin: 10
+          
+          #optional
+          protocol: 4
