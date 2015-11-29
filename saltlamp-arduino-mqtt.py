@@ -177,7 +177,7 @@ elif (line == "SYS_CONFIG 0"):
 		elif (device['module'] == 'AI'):
 			cmd("AI_REG " + str(device['pin']))
 			
-			threshold = device['threshold'] if ('threshold' in device) else 0
+			threshold = device['threshold'] if ('threshold' in device) else 1
 			if (threshold):
 				cmd("AI_SET_DIFFTHRSHLD " + str(device['pin']) + " " + str(threshold))
 				
@@ -209,6 +209,10 @@ elif (line == "SYS_CONFIG 0"):
 			inverted = ' I' if inverted else ''
 			
 			cmd("PWM_REG " + str(device['pin']) + inverted)
+
+			security_interval = device['security_interval'] if ('security_interval' in device) else 0
+			if (security_interval):
+				cmd("PWM_SETSECINTERVAL " + str(device['pin']) + " " + str(security_interval))
 
 		elif (device['module'] == '433'):		
 			protocol = device['protocol'] if ('protocol' in device) else 1
