@@ -18,7 +18,7 @@ devices = config['devices']
 def generate_deviceList(devices):
 	
 	deviceList = []
-	modules = ['DI', 'DO', 'AI', 'TEMP', 'IR', 'US', 'PWM']
+	modules = ['DI', 'DO', 'AI', 'TEMP', 'IR', 'US', 'PWM', '433']
 	
 	for module in modules:
 		if module in devices:
@@ -121,6 +121,12 @@ def on_message(mqttc, obj, msg):
 				cmd("PWM_GETSTATE " + str(device['pin']))
 				return
 
+	if '433' in devices:
+		for device in devices['433']:
+			if ( msg.topic == prefix + device['mqtt_path'] + "/send" ):
+				cmd("433_SEND " + str(device['pin']) + " " + msg.payload)
+				return
+
 def on_connect(mqttc, userdata, flags, rc):
 	mqttc.subscribe(prefix + "+/read", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/control", config['mqtt']['default_qos'])
@@ -203,6 +209,11 @@ elif (line == "SYS_CONFIG 0"):
 			inverted = ' I' if inverted else ''
 			
 			cmd("PWM_REG " + str(device['pin']) + inverted)
+
+		elif (device['module'] == '433'):		
+			protocol = device['protocol'] if ('protocol' in device) else 1
+			
+			cmd("433_REG " + str(device['pin']) + " " + str(protocol))
 
 	cmd("SYS_CONFIG 99 1")
 
