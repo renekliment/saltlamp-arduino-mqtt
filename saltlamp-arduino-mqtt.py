@@ -131,6 +131,7 @@ def on_connect(mqttc, userdata, flags, rc):
 	mqttc.subscribe(prefix + "+/read", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/control", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/getstate", config['mqtt']['default_qos'])
+	mqttc.subscribe(prefix + "+/send", config['mqtt']['default_qos'])
 
 mqttc = mqtt.Client(client_id=config['mqtt']['client_id'], protocol=3)
 mqttc.on_message = on_message
