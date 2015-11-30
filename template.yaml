@@ -113,7 +113,7 @@ devices:
           inverted: true
           security_interval: 5000
           retain: true
-    433:
+    '433':
         - mqtt_path: "rc"
           # so far transmit only
           pin: 10
