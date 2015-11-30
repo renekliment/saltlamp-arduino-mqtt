@@ -233,22 +233,26 @@ lastRun = {
 
 time.sleep(1);
 
-for device in devices['AI']:
-	cmd("AI_READ " + str(device['pin']))
+if 'AI' in devices:
+	for device in devices['AI']:
+		cmd("AI_READ " + str(device['pin']))
 
-for device in devices['DO']:
-	cmd("DO_GETSTATE " + str(device['pin']))
+if 'DO' in devices:
+	for device in devices['DO']:
+		cmd("DO_GETSTATE " + str(device['pin']))
 	
-for device in devices['DI']:
-	cmd("DI_READ " + str(device['pin']))
+if 'DI' in devices:
+	for device in devices['DI']:
+		cmd("DI_READ " + str(device['pin']))
 
 while True:
 
 	if ( lastRun['minute'] + 60 < time.time() ):
 		lastRun['minute'] = time.time()
 
-		for device in devices['TEMP']:
-			cmd("TEMP_READ " + str(device['pin']))
+		if 'TEMP' in devices:
+			for device in devices['TEMP']:
+				cmd("TEMP_READ " + str(device['pin']))
 
 		cmd("SYS_MEM 99")
 
