@@ -254,8 +254,6 @@ elif (line == "SYS_CONFIG 0"):
 
 	cmd("SYS_CONFIG 99 1")
 
-	cmd("SYS_MEM 99")
-
 else:
 	sys.exit("### READING RUBBISH!")
 
