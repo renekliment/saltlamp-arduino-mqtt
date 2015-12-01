@@ -14,6 +14,24 @@ with open(sys.argv[1], 'r') as stream:
 
 prefix = config['mqtt']['prefix']
 devices = config['devices']
+aliases = config['aliases']
+
+def prefix_aliases():
+	
+	global aliases
+	
+	for item in aliases:
+		item['originalTopic'] = prefix + item['originalTopic']
+		item['newTopic'] = prefix + item['newTopic']
+
+def generate_aliasesTopics(aliases):
+	
+	aliasesTopics = []
+	for item in aliases:
+		if not item['originalTopic'] in aliasesTopics:
+			aliasesTopics.append(item['originalTopic'])
+			
+	return aliasesTopics
 
 def generate_deviceList(devices):
 	
@@ -39,6 +57,9 @@ def generate_pin2device(deviceList):
 deviceList = generate_deviceList(devices)
 pin2device = generate_pin2device(deviceList)
 
+prefix_aliases()
+aliasesTopics = generate_aliasesTopics(aliases)
+
 ser = serial.Serial(config['serial']['port'], config['serial']['baudrate'], timeout=config['serial']['timeout'])
 
 if (config['serial']['reset']):
@@ -62,6 +83,17 @@ def on_disconnect(mqttc, userdata, rc):
 		time.sleep(1)
 
 def on_message(mqttc, obj, msg):
+	
+	if (msg.topic in aliasesTopics):
+		for item in aliases:
+			if (item['originalTopic'] == msg.topic):
+				if ('originalPayload' in item) and (msg.payload == item['originalPayload']):
+					msg.topic = item['newTopic']
+					msg.payload = item['newPayload']
+					break
+				elif ('originalPayload' not in item):
+					msg.topic = item['newTopic']
+					break
 
 	if 'DO' in devices:
 		for device in devices['DO']:
