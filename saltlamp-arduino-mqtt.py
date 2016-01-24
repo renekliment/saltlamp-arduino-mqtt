@@ -16,6 +16,9 @@ prefix = config['mqtt']['prefix']
 devices = config['devices']
 aliases = config['aliases']
 
+if not aliases:
+	aliases = {}
+
 def prefix_aliases():
 	
 	global aliases
@@ -182,6 +185,7 @@ def cmd(line):
 
 cmd("SYS_CONFIG 99")
 line = ser.readline().strip().strip('\n')
+
 if (line == "SYS_CONFIG 1"):
 	print("### Configured already, skipping configuration!")
 
