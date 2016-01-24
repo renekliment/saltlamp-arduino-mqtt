@@ -176,6 +176,7 @@ mqttc.connect(config['mqtt']['server'], config['mqtt']['port'], config['mqtt']['
 mqttc.loop_start()
 
 def cmd(line):
+	print("# OUT: " + line)
 	ser.write(line + "\n")
 	time.sleep(0.1)
 
@@ -258,7 +259,7 @@ elif (line == "SYS_CONFIG 0"):
 	cmd("SYS_CONFIG 99 1")
 
 else:
-	sys.exit("### READING RUBBISH!")
+	sys.exit("### READING RUBBISH! (" + line + ")")
 
 lastRun = {
 	'minute': 0,
