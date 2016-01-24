@@ -115,11 +115,18 @@ devices:
           retain: true
     '433':
         - mqtt_path: "rc"
-          # so far transmit only
+          
+          type: "receiver"
+          pin: 2
+
+        - mqtt_path: "rc"
+          
+          type: "transmitter"
           pin: 10
           
           #optional
           protocol: 4
+
           
 aliases:
     - originalTopic: 'heating/control'

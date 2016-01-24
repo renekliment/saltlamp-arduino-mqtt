@@ -155,7 +155,7 @@ def on_message(mqttc, obj, msg):
 
 	if '433' in devices:
 		for device in devices['433']:
-			if ( msg.topic == prefix + device['mqtt_path'] + "/send" ):
+			if ( msg.topic == prefix + device['mqtt_path'] + "/send" ) and (device['type'] == "transmitter"):
 				cmd("433_SEND " + str(device['pin']) + " " + msg.payload)
 				return
 
@@ -250,7 +250,10 @@ elif (line == "SYS_CONFIG 0"):
 		elif (device['module'] == '433'):		
 			protocol = device['protocol'] if ('protocol' in device) else 1
 			
-			cmd("433_REG " + str(device['pin']) + " " + str(protocol))
+			if (device['type'] == 'transmitter'):
+				cmd("433_REG_TRANSMITTER " + str(device['pin']) + " " + str(protocol))
+			else:
+				cmd("433_REG_RECEIVER " + str(device['pin']))
 
 	cmd("SYS_CONFIG 99 1")
 
@@ -340,6 +343,9 @@ while True:
 					mqttc.publish(prefix + device['mqtt_path'], chunks[2], config['mqtt']['default_qos'], retain)
 					
 			elif ( module == "PWM" ):
+				mqttc.publish(prefix + device['mqtt_path'], chunks[2], config['mqtt']['default_qos'], retain)
+				
+			elif ( module == "433" ):
 				mqttc.publish(prefix + device['mqtt_path'], chunks[2], config['mqtt']['default_qos'], retain)
 		else:
 			print("Pin/module mismatch - this should never happen!")
