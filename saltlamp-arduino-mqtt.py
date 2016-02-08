@@ -15,9 +15,13 @@ with open(sys.argv[1], 'r') as stream:
 prefix = config['mqtt']['prefix']
 devices = config['devices']
 aliases = config['aliases']
+echos = config['echos']
 
 if not aliases:
 	aliases = {}
+
+if not echos:
+	echos = {}
 
 def prefix_aliases():
 	
@@ -27,6 +31,14 @@ def prefix_aliases():
 		item['originalTopic'] = prefix + item['originalTopic']
 		item['newTopic'] = prefix + item['newTopic']
 
+def prefix_echos():
+	
+	global echos
+	
+	for item in echos:
+		item['inTopic'] = prefix + item['inTopic']
+		item['outTopic'] = prefix + item['outTopic']
+
 def generate_aliasesTopics(aliases):
 	
 	aliasesTopics = []
@@ -35,6 +47,15 @@ def generate_aliasesTopics(aliases):
 			aliasesTopics.append(item['originalTopic'])
 			
 	return aliasesTopics
+
+def generate_echosTopics(echos):
+	
+	echosTopics = []
+	for item in echos:
+		if not item['inTopic'] in echosTopics:
+			echosTopics.append(item['inTopic'])
+			
+	return echosTopics
 
 def generate_deviceList(devices):
 	
@@ -63,6 +84,9 @@ pin2device = generate_pin2device(deviceList)
 prefix_aliases()
 aliasesTopics = generate_aliasesTopics(aliases)
 
+prefix_echos()
+echosTopics = generate_echosTopics(echos)
+
 ser = serial.Serial(config['serial']['port'], config['serial']['baudrate'], timeout=config['serial']['timeout'])
 
 if (config['serial']['reset']):
@@ -86,6 +110,13 @@ def on_disconnect(mqttc, userdata, rc):
 		time.sleep(1)
 
 def on_message(mqttc, obj, msg):
+
+	if (msg.topic in echosTopics):
+		for item in echos:
+			if (item['inTopic'] == msg.topic) and (item['inPayload'] == msg.payload):
+				retain = item['retain'] if ('retain' in item) else False
+				mqttc.publish(item['outTopic'], item['outPayload'], config['mqtt']['default_qos'], retain)
+				break
 	
 	if (msg.topic in aliasesTopics):
 		for item in aliases:

@@ -146,3 +146,12 @@ aliases:
       newTopic: 'rc/send'
       newPayload: '1230'
               
+echos:
+    - inTopic: 'speakers/control'
+      inPayload: '1'
+      outTopic: 'speakers/state'
+      outPayload: '1'
+      
+      #optional, defaults to false
+      retain: true
+      
