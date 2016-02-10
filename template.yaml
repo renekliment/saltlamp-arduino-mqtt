@@ -155,3 +155,16 @@ echos:
       #optional, defaults to false
       retain: true
       
+automessages:
+    last_will:
+        topic: connected
+        payload: 0
+        qos: 2
+        retain: true
+        
+    on_connect:
+        - topic: connected
+          payload: 1
+          qos: 2
+          retain: true
+      

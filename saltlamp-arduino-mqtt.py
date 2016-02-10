@@ -16,12 +16,16 @@ prefix = config['mqtt']['prefix']
 devices = config['devices']
 aliases = config['aliases']
 echos = config['echos']
+automessages = config['automessages']
 
 if not aliases:
 	aliases = {}
 
 if not echos:
 	echos = {}
+
+if not automessages:
+	automessages = {}
 
 def prefix_aliases():
 	
@@ -198,11 +202,18 @@ def on_connect(mqttc, userdata, flags, rc):
 	mqttc.subscribe(prefix + "+/control", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/getstate", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/send", config['mqtt']['default_qos'])
+	
+	if ('on_connect' in automessages):
+		for item in automessages['on_connect']:
+			mqttc.publish(prefix + item['topic'], item['payload'], item['qos'], item['retain'])	
 
 mqttc = mqtt.Client(client_id=config['mqtt']['client_id'], protocol=3)
 mqttc.on_message = on_message
 mqttc.on_connect = on_connect
 mqttc.on_disconnect = on_disconnect
+
+if ('last_will' in automessages):
+	mqttc.will_set(prefix + automessages['last_will']['topic'], automessages['last_will']['payload'], automessages['last_will']['qos'], automessages['last_will']['retain'])
 
 mqttc.username_pw_set(config['mqtt']['user'], config['mqtt']['password'])
 mqttc.connect(config['mqtt']['server'], config['mqtt']['port'], config['mqtt']['timeout'])
