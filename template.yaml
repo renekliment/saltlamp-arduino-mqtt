@@ -127,43 +127,42 @@ devices:
           #optional
           protocol: 4
 
-          
 aliases:
-    - originalTopic: 'heating/control'
-      newTopic: 'fireplace/control'
+    - inTopic: 'heating/control'
+      outTopic: 'fireplace/control'
 
       #optional
-      originalPayload: '1'
-      newPayload: '1'
-      
-    - originalTopic: 'speakers/control'
-      originalPayload: '1'
-      newTopic: 'rc/send'
-      newPayload: '1231'
-      
-    - originalTopic: 'speakers/control'
-      originalPayload: '0'
-      newTopic: 'rc/send'
-      newPayload: '1230'
-              
-echos:
+      inPayload: '1'
+      outPayload: '1'
+    
     - inTopic: 'speakers/control'
       inPayload: '1'
+      outTopic: 'rc/send'
+      outPayload: '1231'
+    
+    - inTopic: 'speakers/control'
+      inPayload: '0'
+      outTopic: 'rc/send'
+      outPayload: '1230'
+            
+echos:
+    - inTopic: 'speakers/control'
       outTopic: 'speakers/state'
+    
+      #optional
+      inPayload: '1'
       outPayload: '1'
-      
-      #optional, defaults to false
-      retain: true
+      retain: true #defaults to false
       
 automessages:
     last_will:
-        topic: connected
+        topic: 'connected'
         payload: 0
         qos: 2
         retain: true
         
     on_connect:
-        - topic: connected
+        - topic: 'connected'
           payload: 1
           qos: 2
           retain: true

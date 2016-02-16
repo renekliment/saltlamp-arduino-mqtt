@@ -14,9 +14,10 @@ with open(sys.argv[1], 'r') as stream:
 
 prefix = config['mqtt']['prefix']
 devices = config['devices']
+automessages = config['automessages']
+
 aliases = config['aliases']
 echos = config['echos']
-automessages = config['automessages']
 
 if not aliases:
 	aliases = {}
@@ -27,39 +28,20 @@ if not echos:
 if not automessages:
 	automessages = {}
 
-def prefix_aliases():
-	
-	global aliases
-	
-	for item in aliases:
-		item['originalTopic'] = prefix + item['originalTopic']
-		item['newTopic'] = prefix + item['newTopic']
-
-def prefix_echos():
-	
-	global echos
-	
-	for item in echos:
+def prefix_topics(items):
+		
+	for item in items:
 		item['inTopic'] = prefix + item['inTopic']
 		item['outTopic'] = prefix + item['outTopic']
 
-def generate_aliasesTopics(aliases):
+def generate_usedTopics(items):
 	
-	aliasesTopics = []
-	for item in aliases:
-		if not item['originalTopic'] in aliasesTopics:
-			aliasesTopics.append(item['originalTopic'])
+	topics = []
+	for item in items:
+		if not item['inTopic'] in topics:
+			topics.append(item['inTopic'])
 			
-	return aliasesTopics
-
-def generate_echosTopics(echos):
-	
-	echosTopics = []
-	for item in echos:
-		if not item['inTopic'] in echosTopics:
-			echosTopics.append(item['inTopic'])
-			
-	return echosTopics
+	return topics
 
 def generate_deviceList(devices):
 	
@@ -85,11 +67,11 @@ def generate_pin2device(deviceList):
 deviceList = generate_deviceList(devices)
 pin2device = generate_pin2device(deviceList)
 
-prefix_aliases()
-aliasesTopics = generate_aliasesTopics(aliases)
+prefix_topics(aliases)
+aliasesTopics = generate_usedTopics(aliases)
 
-prefix_echos()
-echosTopics = generate_echosTopics(echos)
+prefix_topics(echos)
+echosTopics = generate_usedTopics(echos)
 
 ser = serial.Serial(config['serial']['port'], config['serial']['baudrate'], timeout=config['serial']['timeout'])
 
@@ -117,20 +99,23 @@ def on_message(mqttc, obj, msg):
 
 	if (msg.topic in echosTopics):
 		for item in echos:
-			if (item['inTopic'] == msg.topic) and (item['inPayload'] == msg.payload):
+			if (item['inTopic'] == msg.topic):
 				retain = item['retain'] if ('retain' in item) else False
-				mqttc.publish(item['outTopic'], item['outPayload'], config['mqtt']['default_qos'], retain)
-				break
+				
+				if ('inPayload' in item) and (msg.payload == item['inPayload']):
+					mqttc.publish(item['outTopic'], item['outPayload'], config['mqtt']['default_qos'], retain)
+				elif ('inPayload' not in item):
+					mqttc.publish(item['outTopic'], msg.payload, config['mqtt']['default_qos'], retain)
 	
 	if (msg.topic in aliasesTopics):
 		for item in aliases:
-			if (item['originalTopic'] == msg.topic):
-				if ('originalPayload' in item) and (msg.payload == item['originalPayload']):
-					msg.topic = item['newTopic']
-					msg.payload = item['newPayload']
+			if (item['inTopic'] == msg.topic):
+				if ('inPayload' in item) and (msg.payload == item['inPayload']):
+					msg.topic = item['outTopic']
+					msg.payload = item['outPayload']
 					break
-				elif ('originalPayload' not in item):
-					msg.topic = item['newTopic']
+				elif ('inPayload' not in item):
+					msg.topic = item['outTopic']
 					break
 
 	if 'DO' in devices:
