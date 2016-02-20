@@ -14,19 +14,18 @@ with open(sys.argv[1], 'r') as stream:
 
 prefix = config['mqtt']['prefix']
 devices = config['devices']
-automessages = config['automessages']
 
-aliases = config['aliases']
-echos = config['echos']
+automessages = {}
+if ('automessages' in config) and (config['automessages']):
+    automessages = config['automessages']
 
-if not aliases:
-	aliases = {}
+aliases = {}
+if ('aliases' in config) and (config['aliases']):
+    aliases = config['aliases']
 
-if not echos:
-	echos = {}
-
-if not automessages:
-	automessages = {}
+echos = {}
+if ('echos' in config) and (config['echos']):
+    echos = config['echos']
 
 def prefix_topics(items):
 		
