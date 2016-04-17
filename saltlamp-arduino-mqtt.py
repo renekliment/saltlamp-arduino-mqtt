@@ -216,7 +216,7 @@ mqttc.loop_start()
 def cmd(line):
 	print("# OUT: " + line)
 	ser.write(line + "\n")
-	time.sleep(0.1)
+	time.sleep(0.2)
 
 cmd("SYS_CONFIG 99")
 line = ser.readline().strip().strip('\n')
