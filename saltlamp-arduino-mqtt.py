@@ -184,13 +184,17 @@ def on_message(mqttc, obj, msg):
 			if ( msg.topic == prefix + device['mqtt_path'] + "/send" ) and (device['type'] == "transmitter"):
 				cmd("433_SEND " + str(device['pin']) + " " + msg.payload)
 				return
-
+			
+			elif ( msg.topic == prefix + device['mqtt_path'] + "/protocol" ) and (device['type'] == "transmitter"):
+				cmd("433_PROTO " + str(device['pin']) + " " + msg.payload)
+				return
 
 def on_connect(mqttc, userdata, flags, rc):
 	mqttc.subscribe(prefix + "+/read", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/control", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/getstate", config['mqtt']['default_qos'])
 	mqttc.subscribe(prefix + "+/send", config['mqtt']['default_qos'])
+	mqttc.subscribe(prefix + "+/protocol", config['mqtt']['default_qos'])
 	
 	if ('on_connect' in automessages):
 		for item in automessages['on_connect']:
