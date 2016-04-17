@@ -100,11 +100,15 @@ def on_message(mqttc, obj, msg):
 		for item in echos:
 			if (item['inTopic'] == msg.topic):
 				retain = item['retain'] if ('retain' in item) else False
+				outPayload = ''
 				
-				if ('inPayload' in item) and (msg.payload == item['inPayload']):
-					mqttc.publish(item['outTopic'], item['outPayload'], config['mqtt']['default_qos'], retain)
+				if (('inPayload' in item) and (msg.payload == item['inPayload'])) or ('outPayload' in item):
+					outPayload = item['outPayload']
+					
 				elif ('inPayload' not in item):
-					mqttc.publish(item['outTopic'], msg.payload, config['mqtt']['default_qos'], retain)
+					outPayload = msg.payload
+	
+				mqttc.publish(item['outTopic'], outPayload, config['mqtt']['default_qos'], retain)
 	
 	if (msg.topic in aliasesTopics):
 		for item in aliases:
@@ -180,6 +184,7 @@ def on_message(mqttc, obj, msg):
 			if ( msg.topic == prefix + device['mqtt_path'] + "/send" ) and (device['type'] == "transmitter"):
 				cmd("433_SEND " + str(device['pin']) + " " + msg.payload)
 				return
+
 
 def on_connect(mqttc, userdata, flags, rc):
 	mqttc.subscribe(prefix + "+/read", config['mqtt']['default_qos'])
